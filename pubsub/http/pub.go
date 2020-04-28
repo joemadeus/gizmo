@@ -69,7 +69,7 @@ func (p Publisher) PublishMulti(ctx context.Context, keys []string, msgs []proto
 }
 
 // PublishMultiRaw will call PublishRaw for each message given.
-func (p Publisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byte) error {
+func (p Publisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byte, _ ...string) error {
 	for _, msg := range msgs {
 		err := p.PublishRaw(ctx, "", msg)
 		if err != nil {
@@ -81,7 +81,7 @@ func (p Publisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byt
 
 // PublishRaw will POST the given message payload at the URL provided in the Publisher
 // construct.
-func (p Publisher) PublishRaw(_ context.Context, _ string, payload []byte) error {
+func (p Publisher) PublishRaw(_ context.Context, _ string, payload []byte, _ ...string) error {
 	req, err := http.NewRequest("POST", p.url, bytes.NewReader(payload))
 	if err != nil {
 		return err

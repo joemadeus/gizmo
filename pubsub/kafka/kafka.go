@@ -57,7 +57,7 @@ func (p *Publisher) Publish(ctx context.Context, key string, m proto.Message) er
 }
 
 // PublishRaw will emit the byte array to the Kafka topic.
-func (p *Publisher) PublishRaw(_ context.Context, key string, m []byte) error {
+func (p *Publisher) PublishRaw(_ context.Context, key string, m []byte, _ ...string) error {
 	msg := &sarama.ProducerMessage{
 		Topic: p.topic,
 		Key:   sarama.StringEncoder(key),
