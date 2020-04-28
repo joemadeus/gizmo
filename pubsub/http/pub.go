@@ -122,7 +122,7 @@ func (p GCPPublisher) Publish(ctx context.Context, key string, msg proto.Message
 
 // PublishRaw will wrap the given message in a struct similar to GCP's push-style PubSub
 // subscriptions and then POST the message payload at the URL provided in the construct.
-func (p GCPPublisher) PublishRaw(ctx context.Context, key string, msg []byte) error {
+func (p GCPPublisher) PublishRaw(ctx context.Context, key string, msg []byte, _ ...string) error {
 	payload, err := json.Marshal(gcpPayload{Message: message{Data: msg}})
 	if err != nil {
 		return err
@@ -144,7 +144,7 @@ func (p GCPPublisher) PublishMulti(ctx context.Context, keys []string, msgs []pr
 }
 
 // PublishMultiRaw will call PublishRaw for each message given.
-func (p GCPPublisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byte) error {
+func (p GCPPublisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byte, _ ...string) error {
 	for _, msg := range msgs {
 		err := p.PublishRaw(ctx, "", msg)
 		if err != nil {
