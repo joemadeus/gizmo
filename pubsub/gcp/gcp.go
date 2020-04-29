@@ -175,7 +175,7 @@ func (p *publisher) Publish(ctx context.Context, key string, msg proto.Message) 
 }
 
 // PublishRaw will publish the message to GCP pubsub.
-func (p *publisher) PublishRaw(ctx context.Context, key string, m []byte, _ ...string) error {
+func (p *publisher) PublishRaw(ctx context.Context, key string, m []byte) error {
 	res := p.topic.Publish(ctx, &gpubsub.Message{
 		Data:       m,
 		Attributes: map[string]string{"key": key},
@@ -202,7 +202,7 @@ func (p *publisher) PublishMulti(ctx context.Context, keys []string, messages []
 }
 
 // PublishMultiRaw will publish multiple raw byte array messages to GCP pubsub in a single request.
-func (p *publisher) PublishMultiRaw(ctx context.Context, keys []string, messages [][]byte, _ ...string) error {
+func (p *publisher) PublishMultiRaw(ctx context.Context, keys []string, messages [][]byte) error {
 	if len(keys) != len(messages) {
 		return errors.New("keys and messages must be equal length")
 	}

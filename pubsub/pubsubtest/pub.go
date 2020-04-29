@@ -45,7 +45,7 @@ func (t *TestPublisher) Publish(ctx context.Context, key string, msg proto.Messa
 }
 
 // PublishRaw publishes the raw message byte slice.
-func (t *TestPublisher) PublishRaw(_ context.Context, key string, msg []byte, _ ...string) error {
+func (t *TestPublisher) PublishRaw(_ context.Context, key string, msg []byte) error {
 	t.pmu.Lock()
 	defer t.pmu.Unlock()
 	t.Published = append(t.Published, TestPublishMsg{key, msg})
@@ -67,7 +67,7 @@ func (t *TestPublisher) PublishMulti(ctx context.Context, keys []string, message
 }
 
 // PublishMultiRaw will publish multiple raw byte array messages with a context.
-func (t *TestPublisher) PublishMultiRaw(ctx context.Context, keys []string, messages [][]byte, _ ...string) error {
+func (t *TestPublisher) PublishMultiRaw(ctx context.Context, keys []string, messages [][]byte) error {
 	if len(keys) != len(messages) {
 		return errors.New("keys and messages must be equal length")
 	}

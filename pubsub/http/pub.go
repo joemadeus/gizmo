@@ -20,11 +20,6 @@ type Publisher struct {
 	client *http.Client
 }
 
-// GCPPublisher publishes data in the same format as a GCP push-style payload.
-type GCPPublisher struct {
-	pubsub.Publisher
-}
-
 // NewPublisher will return a pubsub.Publisher that simply posts the payload to
 // the given URL. If no http.Client is provided, the default one has a 5 second
 // timeout.
@@ -35,15 +30,6 @@ func NewPublisher(url string, client *http.Client) Publisher {
 		}
 	}
 	return Publisher{url: url, client: client}
-}
-
-// NewGCPStylePublisher will return a pubsub.Publisher that wraps the payload
-// in a GCP pubsub.Message-like object that will make this publisher emulate
-// Google's PubSub posting messages to a server.
-// If no http.Client is provided, the default one has a 5 second
-// timeout.
-func NewGCPStylePublisher(url string, client *http.Client) GCPPublisher {
-	return GCPPublisher{NewPublisher(url, client)}
 }
 
 // Publish will serialize the given message and pass it to PublishRaw.
@@ -69,7 +55,7 @@ func (p Publisher) PublishMulti(ctx context.Context, keys []string, msgs []proto
 }
 
 // PublishMultiRaw will call PublishRaw for each message given.
-func (p Publisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byte, _ ...string) error {
+func (p Publisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byte) error {
 	for _, msg := range msgs {
 		err := p.PublishRaw(ctx, "", msg)
 		if err != nil {
@@ -81,11 +67,13 @@ func (p Publisher) PublishMultiRaw(ctx context.Context, _ []string, msgs [][]byt
 
 // PublishRaw will POST the given message payload at the URL provided in the Publisher
 // construct.
-func (p Publisher) PublishRaw(_ context.Context, _ string, payload []byte, _ ...string) error {
+func (p Publisher) PublishRaw(ctx context.Context, _ string, payload []byte) error {
 	req, err := http.NewRequest("POST", p.url, bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}
+
+	req.Header.Set("X-Pipeline-Id", "dist-2191919")
 
 	resp, err := p.client.Do(req)
 	if err != nil {
@@ -101,6 +89,20 @@ func (p Publisher) PublishRaw(_ context.Context, _ string, payload []byte, _ ...
 	}
 
 	return nil
+}
+
+// GCPPublisher publishes data in the same format as a GCP push-style payload.
+type GCPPublisher struct {
+	pubsub.Publisher
+}
+
+// NewGCPStylePublisher will return a pubsub.Publisher that wraps the payload
+// in a GCP pubsub.Message-like object that will make this publisher emulate
+// Google's PubSub posting messages to a server.
+// If no http.Client is provided, the default one has a 5 second
+// timeout.
+func NewGCPStylePublisher(url string, client *http.Client) GCPPublisher {
+	return GCPPublisher{NewPublisher(url, client)}
 }
 
 type gcpPayload struct {

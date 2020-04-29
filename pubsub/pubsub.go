@@ -19,7 +19,7 @@ type Publisher interface {
 	// Publish will publish a message with context.
 	Publish(context.Context, string, proto.Message) error
 	// Publish will publish a raw byte array as a message with context.
-	PublishRaw(context.Context, string, []byte, ...string) error
+	PublishRaw(context.Context, string, []byte) error
 }
 
 // MultiPublisher is an interface for publishers who support sending multiple
@@ -30,7 +30,7 @@ type MultiPublisher interface {
 	// PublishMulti will publish multiple messages with a context.
 	PublishMulti(context.Context, []string, []proto.Message) error
 	// PublishMultiRaw will publish multiple raw byte array messages with a context.
-	PublishMultiRaw(context.Context, []string, [][]byte, ...string) error
+	PublishMultiRaw(context.Context, []string, [][]byte) error
 }
 
 // Subscriber is a generic interface to encapsulate how we want our subscribers

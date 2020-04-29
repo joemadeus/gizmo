@@ -89,7 +89,7 @@ func (p *publisher) Publish(ctx context.Context, key string, m proto.Message) er
 // PublishRaw will emit the byte array to the SNS topic.
 // The key will be used as the SNS message subject.
 // You can use func WithMessageAttributes to set SNS message attributes for the message
-func (p *publisher) PublishRaw(ctx context.Context, key string, m []byte, _ ...string) error {
+func (p *publisher) PublishRaw(ctx context.Context, key string, m []byte) error {
 	msg := &sns.PublishInput{
 		TopicArn: &p.topic,
 		Subject:  &key,
