@@ -46,14 +46,12 @@ func (p *httpPublisher) Publish(ctx context.Context, key string, msg proto.Messa
 }
 
 // PublishRaw will publish the message to GCP pubsub.
-func (p *httpPublisher) PublishRaw(ctx context.Context, key string, m []byte, attrs ...string) error {
-	attrmap := map[string]string{"key": key}
-	appendAttrs(attrmap, attrs...)
+func (p *httpPublisher) PublishRaw(ctx context.Context, key string, m []byte) error {
 	call := p.svc.Publish(p.topic, &v1pubsub.PublishRequest{
 		Messages: []*v1pubsub.PubsubMessage{
 			{
 				Data:       base64.StdEncoding.EncodeToString(m),
-				Attributes: attrmap,
+				Attributes: map[string]string{"key": key},
 			},
 		},
 	})
@@ -79,18 +77,16 @@ func (p *httpPublisher) PublishMulti(ctx context.Context, keys []string, message
 }
 
 // PublishMultiRaw will publish multiple raw byte array messages to GCP pubsub in a single request.
-func (p *httpPublisher) PublishMultiRaw(ctx context.Context, keys []string, messages [][]byte, attrs ...string) error {
+func (p *httpPublisher) PublishMultiRaw(ctx context.Context, keys []string, messages [][]byte) error {
 	if len(keys) != len(messages) {
 		return errors.New("keys and messages must be equal length")
 	}
 
 	a := make([]*v1pubsub.PubsubMessage, len(messages))
 	for i := range messages {
-		attrmap := map[string]string{"key": keys[i]}
-		appendAttrs(attrmap, attrs...)
 		a[i] = &v1pubsub.PubsubMessage{
 			Data:       base64.StdEncoding.EncodeToString(messages[i]),
-			Attributes: attrmap,
+			Attributes: map[string]string{"key": keys[i]},
 		}
 	}
 
@@ -99,10 +95,4 @@ func (p *httpPublisher) PublishMultiRaw(ctx context.Context, keys []string, mess
 	})
 	_, err := call.Do()
 	return err
-}
-
-func appendAttrs(attrMap map[string]string, attrs ...string) {
-	for j := 0; j < len(attrs); j = j + 2 {
-		attrMap[attrs[j]] = attrs[j+1]
-	}
 }
